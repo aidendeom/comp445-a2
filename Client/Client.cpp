@@ -77,6 +77,7 @@ void Client::threeWayHandshake()
 	Packet p;
 	p.seqNo = 0;
 	p.length = rand();
+	sendPacket(p);
 	std::cout << p.length << std::endl << std::flush;
 }
 

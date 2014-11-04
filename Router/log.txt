@@ -1,3 +1,5 @@
 Peer host 1: localhost
 Peer host 2: localhost
 Damage Rate: 0
+Router: Receive packet 0 from peer host 1
+Router: Send packet 0 received from peer host 1 to host 2
