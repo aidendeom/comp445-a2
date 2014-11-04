@@ -50,7 +50,7 @@ Client::Client()
 		sa_out.sin_family = hp->h_addrtype;
 		sa_out.sin_port = htons(ROUTER_PORT_CLIENT);
 
-		srand(time(nullptr));
+		srand((unsigned)time(nullptr));
 
 		std::cout << "Client ready" << std::endl << std::flush;
 	}
@@ -75,10 +75,19 @@ void Client::run()
 void Client::threeWayHandshake()
 {
 	Packet p;
-	p.seqNo = 0;
-	p.length = rand();
+	int num = rand();
+	p.seqNo = num;
 	sendPacket(p);
-	std::cout << p.length << std::endl << std::flush;
+
+	recvPacket(p);
+	if (p.ackNo != num + 1)
+		throw "Three way handshake failed\n";
+
+	p.ackNo = p.seqNo + 1;
+
+	sendPacket(p);
+
+	std::cout << "Handshake success!" << std::endl << std::flush;
 }
 
 void Client::sendPacket(const Packet& p)
@@ -88,6 +97,19 @@ void Client::sendPacket(const Packet& p)
 	memcpy(buffer, &p, len);
 	if (sendto(s, buffer, len, 0, (SOCKADDR*)&sa_out, sizeof(sa_out)) == SOCKET_ERROR)
 		throw "Send fail\n";
+}
+
+void Client::recvPacket(Packet& p)
+{
+	const int len = sizeof(p);
+	int recvLen;
+	char buffer[len];
+	SOCKADDR from;
+	int fromLen = sizeof(from);
+	if ((recvLen = recvfrom(s, buffer, len, 0, &from, &fromLen)) == SOCKET_ERROR)
+		throw "Recieve failed\n";
+
+	memcpy(&p, buffer, len);
 }
 
 int main()

@@ -139,8 +139,20 @@ void prompt(const char *str, char *buffer, size_t bufferlen)
 
 struct Packet
 {
+	static const size_t DATA_LENGTH{ 1024 };
+
 	int seqNo;
 	int ackNo;
 	size_t length;
-	char data[1024];
+	char data[DATA_LENGTH];
+
+	Packet() :
+		seqNo{ 0 },
+		ackNo{ 0 },
+		length{ 0 }
+	{
+		memset(data, '\0', DATA_LENGTH);
+	}
+
+	~Packet() {};
 };

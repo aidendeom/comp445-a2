@@ -21,6 +21,7 @@ private:
 	std::string router_hostname;
 
 	void threeWayHandshake();
+	void sendPacket(const Packet& p);
 	void recvPacket(Packet& p);
 };
 

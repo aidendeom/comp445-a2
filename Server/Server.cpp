@@ -51,7 +51,7 @@ Server::Server()
 		sa_out.sin_family = hp->h_addrtype;
 		sa_out.sin_port = htons(ROUTER_PORT_SERVER);
 
-		srand(time(nullptr));
+		srand((unsigned)time(nullptr));
 
 		std::cout << "Server ready" << std::endl << std::flush;
 	}
@@ -77,7 +77,26 @@ void Server::threeWayHandshake()
 {
 	Packet p;
 	recvPacket(p);
-	std::cout << p.length << std::endl << std::flush;
+	p.ackNo = p.seqNo + 1;
+	int num = rand();
+	p.seqNo = num;
+	sendPacket(p);
+
+	recvPacket(p);
+
+	if (p.ackNo != num + 1)
+		throw "Three way handshake failed\n";
+
+	std::cout << "Handshake success!" << std::endl << std::flush;
+}
+
+void Server::sendPacket(const Packet& p)
+{
+	const int len = sizeof(p);
+	char buffer[len];
+	memcpy(buffer, &p, len);
+	if (sendto(s, buffer, len, 0, (SOCKADDR*)&sa_out, sizeof(sa_out)) == SOCKET_ERROR)
+		throw "Send fail\n";
 }
 
 void Server::recvPacket(Packet& p)
