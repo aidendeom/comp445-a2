@@ -70,7 +70,14 @@ Server::~Server()
 
 void Server::run()
 {
-	threeWayHandshake();
+	try
+	{
+		threeWayHandshake();
+	}
+	catch (const char* str)
+	{
+		std::cout << str << std::endl << std::flush;
+	}
 }
 
 void Server::threeWayHandshake()

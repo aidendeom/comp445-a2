@@ -69,7 +69,14 @@ Client::~Client()
 
 void Client::run()
 {
-	threeWayHandshake();
+	try
+	{
+		threeWayHandshake();
+	}
+	catch (const char* str)
+	{
+		std::cout << str << std::endl << std::flush;
+	}
 }
 
 void Client::threeWayHandshake()
