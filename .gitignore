@@ -26,3 +26,15 @@
 *.exe
 *.out
 *.app
+
+# Project files
+*.vcxproj
+*.filters
+*.ilk
+*.pdb
+*.log
+*.tlog
+*.sln
+*.suo
+*.sdf
+*.idb

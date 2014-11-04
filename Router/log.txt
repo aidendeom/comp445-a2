@@ -1,0 +1,3 @@
+Peer host 1: localhost
+Peer host 2: localhost
+Damage Rate: 0
