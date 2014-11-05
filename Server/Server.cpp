@@ -75,9 +75,9 @@ void Server::run()
 	try
 	{
 		//threeWayHandshake();
-		recvPacketWithACK(p);
+		while(!recvPacketWithACK(p));
 		std::cout << p.data << std::endl << std::flush;
-		recvPacketWithACK(p);
+		while (!recvPacketWithACK(p));
 		std::cout << p.data << std::endl << std::flush;
 	}
 	catch (const char* str)
