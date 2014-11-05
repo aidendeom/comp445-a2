@@ -70,31 +70,70 @@ Server::~Server()
 
 void Server::run()
 {
+	Packet p;
+
 	try
 	{
 		threeWayHandshake();
+		recvPacketWithACK(p);
+		std::cout << p.data << std::endl << std::flush;
 	}
 	catch (const char* str)
 	{
-		std::cout << str << std::endl << std::flush;
+		std::cout << str << WSAGetLastError() << std::endl << std::flush;
 	}
 }
 
 void Server::threeWayHandshake()
 {
 	Packet p;
+
+	timeval tp;
+	tp.tv_sec = 0;
+	tp.tv_usec = TIMEOUT_USEC;
+
+	fd_set readfds;
+
 	recvPacket(p);
 	p.ackNo = p.seqNo + 1;
 	int num = rand();
 	p.seqNo = num;
-	sendPacket(p);
 
-	recvPacket(p);
+	bool sent = false;
+
+	while (!sent)
+	{
+		sendPacket(p);
+
+		FD_ZERO(&readfds);
+		FD_SET(s, &readfds);
+
+		if (select(1, &readfds, nullptr, nullptr, &tp) == 0)
+		{
+			printf_s("Timeout hanshake, resend\n");
+			continue;
+		}
+		else
+		{
+			recvPacket(p);
+			sent = true;
+		}
+	}
 
 	if (p.ackNo != num + 1)
 		throw "Three way handshake failed\n";
 
 	std::cout << "Handshake success!" << std::endl << std::flush;
+}
+
+void Server::recvPacketWithACK(Packet& p)
+{
+	Packet response;
+
+	recvPacket(p);
+	response.ackNo = p.seqNo;
+
+	sendPacket(response);
 }
 
 void Server::sendPacket(const Packet& p)

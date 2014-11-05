@@ -69,24 +69,55 @@ Client::~Client()
 
 void Client::run()
 {
+	Packet p;
+
 	try
 	{
 		threeWayHandshake();
+		p.seqNo = 0;
+		sprintf_s(p.data, "Hello, world!");
+		sendPacketWithACK(p);
 	}
 	catch (const char* str)
 	{
-		std::cout << str << std::endl << std::flush;
+		std::cout << str << WSAGetLastError() << std::endl << std::flush;
 	}
 }
 
 void Client::threeWayHandshake()
 {
 	Packet p;
+
+	timeval tp;
+	tp.tv_sec = 0;
+	tp.tv_usec = TIMEOUT_USEC;
+
+	fd_set readfds;
+
 	int num = rand();
 	p.seqNo = num;
-	sendPacket(p);
 
-	recvPacket(p);
+	bool sent = false;
+
+	while (!sent)
+	{
+		sendPacket(p);
+
+		FD_ZERO(&readfds);
+		FD_SET(s, &readfds);
+
+		if (select(1, &readfds, nullptr, nullptr, &tp) == 0)
+		{
+			printf_s("Timeout hanshake, resend\n");
+			continue;
+		}
+		else
+		{
+			recvPacket(p);
+			sent = true;
+		}
+	}
+
 	if (p.ackNo != num + 1)
 		throw "Three way handshake failed\n";
 
@@ -95,6 +126,54 @@ void Client::threeWayHandshake()
 	sendPacket(p);
 
 	std::cout << "Handshake success!" << std::endl << std::flush;
+}
+
+void Client::sendPacketWithACK(const Packet& p)
+{
+	int ackNo = p.seqNo;
+
+	Packet response;
+
+	timeval tp;
+	tp.tv_sec = 0;
+	tp.tv_usec = TIMEOUT_USEC;
+
+	fd_set readfds;
+
+	bool sent = false;
+
+	while (!sent)
+	{
+		try
+		{
+			// Set which sockets to watch
+			FD_ZERO(&readfds);
+			FD_SET(s, &readfds);
+
+			// TODO: Optimize so that it doesn't recopy to the buffer on a dropped packet
+			sendPacket(p);
+
+			if (select(1, &readfds, nullptr, nullptr, &tp) == 0)
+			{
+				throw "Timeout while waiting for response! Resending...\n";
+			}
+			else
+			{
+				recvPacket(response);
+				if (response.ackNo == ackNo)
+					sent = true;
+				else
+				{
+					throw "Response ACK number not equal! Resending...\n";
+				}
+			}
+		}
+		catch (const char *str)
+		{
+			std::cout << str << WSAGetLastError() << std::endl << std::flush;
+			// TODO: Log the error
+		}
+	}
 }
 
 void Client::sendPacket(const Packet& p)

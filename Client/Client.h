@@ -23,5 +23,6 @@ private:
 	void threeWayHandshake();
 	void sendPacket(const Packet& p);
 	void recvPacket(Packet& p);
+	void sendPacketWithACK(const Packet& p);
 };
 
