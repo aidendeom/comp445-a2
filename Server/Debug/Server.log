@@ -1,14 +1,14 @@
-﻿Build started 05-Nov-14 8:00:54 AM.
-     1>Project "E:\Documents\comp445-a2\Server\Server.vcxproj" on node 3 (Build target(s)).
+﻿Build started 11/5/2014 2:52:21 PM.
+     1>Project "C:\Users\Aiden\Documents\comp445-a2\Server\Server.vcxproj" on node 3 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Server.cpp
          Server.cpp
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\Documents\comp445-a2\Debug\Server.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:\Documents\comp445-a2\Debug\Server.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\Documents\comp445-a2\Debug\Server.lib" /MACHINE:X86 Debug\Server.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Aiden\Documents\comp445-a2\Debug\Server.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Aiden\Documents\comp445-a2\Debug\Server.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Aiden\Documents\comp445-a2\Debug\Server.lib" /MACHINE:X86 Debug\Server.obj
          Debug\Server2.obj
-         Server.vcxproj -> E:\Documents\comp445-a2\Debug\Server.exe
-     1>Done Building Project "E:\Documents\comp445-a2\Server\Server.vcxproj" (Build target(s)).
+         Server.vcxproj -> C:\Users\Aiden\Documents\comp445-a2\Debug\Server.exe
+     1>Done Building Project "C:\Users\Aiden\Documents\comp445-a2\Server\Server.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.80
+Time Elapsed 00:00:03.62

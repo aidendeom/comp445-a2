@@ -73,7 +73,10 @@ void Client::run()
 
 	try
 	{
-		//threeWayHandshake();
+		// Keep trying to connect to server
+		while(!threeWayHandshake());
+
+		p.ackNo = connectionAckNo;
 		p.seqNo = 0;
 		sprintf_s(p.data, "Hello, world!");
 		sendPacketWithACK(p);
@@ -88,7 +91,7 @@ void Client::run()
 	}
 }
 
-void Client::threeWayHandshake()
+bool Client::threeWayHandshake()
 {
 	Packet p;
 
@@ -98,38 +101,33 @@ void Client::threeWayHandshake()
 
 	fd_set readfds;
 
-	int num = rand();
-	p.seqNo = num;
+	int synNumber = rand();
+	p.seqNo = synNumber;
 
-	bool sent = false;
-
-	while (!sent)
-	{
-		sendPacket(p);
-
-		FD_ZERO(&readfds);
-		FD_SET(s, &readfds);
-
-		if (select(1, &readfds, nullptr, nullptr, &tp) == 0)
-		{
-			printf_s("Timeout hanshake, resend\n");
-			continue;
-		}
-		else
-		{
-			recvPacket(p);
-			sent = true;
-		}
-	}
-
-	if (p.ackNo != num + 1)
-		throw "Three way handshake failed\n";
-
-	p.ackNo = p.seqNo + 1;
-
+	printf_s("Sending SYN %d\n", p.seqNo);
 	sendPacket(p);
 
+	FD_ZERO(&readfds);
+	FD_SET(s, &readfds);
+
+	if (select(1, &readfds, nullptr, nullptr, &tp) == 0)
+	{
+		printf_s("Timeout during handshake waiting for SYN+ACK\n");
+		return false;
+	}
+
+	recvPacket(p);
+	printf_s("Received SYN/ACK packet: SYN -> %d ACK -> %d\n", p.seqNo, p.ackNo);
+
+	if (p.ackNo != synNumber + 1)
+		throw "Three way handshake failed\n";
+
+	connectionAckNo = p.ackNo = p.seqNo + 1;
+	printf_s("Sending final ACK %d\n", p.ackNo);
+	sendPacket(p);
 	std::cout << "Handshake success!" << std::endl << std::flush;
+
+	return true;
 }
 
 void Client::sendPacketWithACK(const Packet& p)
@@ -155,6 +153,7 @@ void Client::sendPacketWithACK(const Packet& p)
 			FD_SET(s, &readfds);
 
 			// TODO: Optimize so that it doesn't recopy to the buffer on a dropped packet
+			printf_s("Sending packet SeqNo = %d\n", p.seqNo);
 			sendPacket(p);
 
 			if (select(1, &readfds, nullptr, nullptr, &tp) == 0)
@@ -164,6 +163,7 @@ void Client::sendPacketWithACK(const Packet& p)
 			else
 			{
 				recvPacket(response);
+				printf_s("Received response. AckNo = %d, expected = %d\n", response.ackNo, expectedAckNo);
 				if (response.ackNo == expectedAckNo)
 					sent = true;
 				else

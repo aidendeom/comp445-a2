@@ -74,9 +74,12 @@ void Server::run()
 
 	try
 	{
-		//threeWayHandshake();
-		while(!recvPacketWithACK(p));
+		// Keep waiting for a connection
+		while (!threeWayHandshake());
+
+		while (!recvPacketWithACK(p));
 		std::cout << p.data << std::endl << std::flush;
+
 		while (!recvPacketWithACK(p));
 		std::cout << p.data << std::endl << std::flush;
 	}
@@ -86,7 +89,7 @@ void Server::run()
 	}
 }
 
-void Server::threeWayHandshake()
+bool Server::threeWayHandshake()
 {
 	Packet p;
 
@@ -97,35 +100,36 @@ void Server::threeWayHandshake()
 	fd_set readfds;
 
 	recvPacket(p);
+	printf_s("Received SYN packet: %d\n", p.seqNo, p.ackNo);
 	p.ackNo = p.seqNo + 1;
 	int num = rand();
 	p.seqNo = num;
 
-	bool sent = false;
+	printf_s("Sending SYN/ACL packet: SYN -> %d ACK -> %d\n", p.seqNo, p.ackNo);
+	sendPacket(p);
 
-	while (!sent)
+	FD_ZERO(&readfds);
+	FD_SET(s, &readfds);
+
+	if (select(1, &readfds, nullptr, nullptr, &tp) == 0)
 	{
-		sendPacket(p);
-
-		FD_ZERO(&readfds);
-		FD_SET(s, &readfds);
-
-		if (select(1, &readfds, nullptr, nullptr, &tp) == 0)
-		{
-			printf_s("Timeout hanshake, resend\n");
-			continue;
-		}
-		else
-		{
-			recvPacket(p);
-			sent = true;
-		}
+		printf_s("Timeout in handshake waiting for final ACK\n");
+		return false;
+	}
+	else
+	{
+		recvPacket(p);
+		printf_s("Received final ACK packet: %d\n", p.ackNo);
 	}
 
-	if (p.ackNo != num + 1)
+	connectionAckNo = num + 1;
+
+	if (p.ackNo != connectionAckNo)
 		throw "Three way handshake failed\n";
 
 	std::cout << "Handshake success!" << std::endl << std::flush;
+
+	return true;
 }
 
 bool Server::recvPacketWithACK(Packet& p)
@@ -135,18 +139,23 @@ bool Server::recvPacketWithACK(Packet& p)
 	Packet response;
 
 	recvPacket(p);
-	response.ackNo = expectedSequenceNo;
+	printf_s("Received packet, SeqNo = %d\n", p.seqNo);
 
+	response.ackNo = p.seqNo;
 	sendPacket(response);
+	printf_s("Sending response, AckNo = %d\n", response.ackNo);
 
-	bool correctPacket = p.seqNo == expectedSequenceNo;
+	if (p.seqNo == expectedSequenceNo && p.ackNo == connectionAckNo)
+	{
+		if (expectedSequenceNo == 0)
+			expectedSequenceNo = 1;
+		else
+			expectedSequenceNo = 0;
 
-	if (expectedSequenceNo == 0)
-		expectedSequenceNo = 1;
-	else
-		expectedSequenceNo = 0;
+		return true;
+	}
 
-	return correctPacket;
+	return false;
 }
 
 void Server::sendPacket(const Packet& p)
