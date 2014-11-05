@@ -74,7 +74,9 @@ void Server::run()
 
 	try
 	{
-		threeWayHandshake();
+		//threeWayHandshake();
+		recvPacketWithACK(p);
+		std::cout << p.data << std::endl << std::flush;
 		recvPacketWithACK(p);
 		std::cout << p.data << std::endl << std::flush;
 	}
@@ -126,14 +128,25 @@ void Server::threeWayHandshake()
 	std::cout << "Handshake success!" << std::endl << std::flush;
 }
 
-void Server::recvPacketWithACK(Packet& p)
+bool Server::recvPacketWithACK(Packet& p)
 {
+	static int expectedSequenceNo = 0;
+
 	Packet response;
 
 	recvPacket(p);
-	response.ackNo = p.seqNo;
+	response.ackNo = expectedSequenceNo;
 
 	sendPacket(response);
+
+	bool correctPacket = p.seqNo == expectedSequenceNo;
+
+	if (expectedSequenceNo == 0)
+		expectedSequenceNo = 1;
+	else
+		expectedSequenceNo = 0;
+
+	return correctPacket;
 }
 
 void Server::sendPacket(const Packet& p)

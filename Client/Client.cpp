@@ -73,9 +73,13 @@ void Client::run()
 
 	try
 	{
-		threeWayHandshake();
+		//threeWayHandshake();
 		p.seqNo = 0;
 		sprintf_s(p.data, "Hello, world!");
+		sendPacketWithACK(p);
+
+		p.seqNo = 1;
+		sprintf_s(p.data, "This is the second message");
 		sendPacketWithACK(p);
 	}
 	catch (const char* str)
@@ -130,7 +134,7 @@ void Client::threeWayHandshake()
 
 void Client::sendPacketWithACK(const Packet& p)
 {
-	int ackNo = p.seqNo;
+	int expectedAckNo = p.seqNo;
 
 	Packet response;
 
@@ -160,7 +164,7 @@ void Client::sendPacketWithACK(const Packet& p)
 			else
 			{
 				recvPacket(response);
-				if (response.ackNo == ackNo)
+				if (response.ackNo == expectedAckNo)
 					sent = true;
 				else
 				{
