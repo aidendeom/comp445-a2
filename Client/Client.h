@@ -19,10 +19,10 @@ private:
 	SOCKET s;
 	SOCKADDR_IN sa_out;
 	std::string router_hostname;
-	int connectionAckNo;
 	bool enableLogging;
-	int initialSeqNo;
+	int connectionAck;
 	int currentSeqNo;
+	int expectedSeqNo;
 
 	void threeWayHandshake();
 	void sendPacket(const Packet& p);

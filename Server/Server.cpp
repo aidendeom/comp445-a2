@@ -111,11 +111,11 @@ void Server::threeWayHandshake()
 	recvPacket(p);
 	printf_s("Received SYN packet: %d\n", p.seqNo, p.ackNo);
 
-	expectedSeqNo = (!p.seqNo) & 1;
+	expectedSeqNo = (~p.seqNo) & 1;
 
 	p.ackNo = p.seqNo + 1;
-	int num = rand();
-	p.seqNo = num;
+	int synNum = rand();
+	p.seqNo = synNum;
 	p.syn = true;
 
 	bool sent = false;
@@ -138,7 +138,7 @@ void Server::threeWayHandshake()
 			recvPacket(p);
 			printf_s("Received final ACK packet: %d\n", p.ackNo);
 
-			connectionAckNo = num + 1;
+			connectionAckNo = synNum + 1;
 
 			if (p.ackNo != connectionAckNo)
 				throw "Three way handshake failed\n";
@@ -152,7 +152,12 @@ void Server::recvFile()
 {
 	Packet p;
 
-	std::ofstream file("received_file.pdf", std::ios::binary | std::ios::trunc);
+	// Get filename
+	while (!recvPacketWithACK(p));
+
+	std::string filename(p.data);
+
+	std::ofstream file(filename, std::ios::binary | std::ios::trunc);
 
 	do
 	{

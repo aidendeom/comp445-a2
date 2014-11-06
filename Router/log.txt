@@ -315,3 +315,7 @@ Router: Receive packet 78 from peer host 1
 Router: Send packet 78 received from peer host 1 to host 2
 Router: Receive packet 77 from peer host 2
 Router: Send packet 77 received from peer host 2 to host 1
+Router: Receive packet 79 from peer host 1
+Router: Send packet 79 received from peer host 1 to host 2
+Router: Receive packet 78 from peer host 2
+Router: Send packet 78 received from peer host 2 to host 1

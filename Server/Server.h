@@ -20,6 +20,7 @@ private:
 	SOCKADDR_IN sa_out;
 	std::string router_hostname;
 	int connectionAckNo;
+	int currentSeqNo;
 	int expectedSeqNo;
 
 	void threeWayHandshake();

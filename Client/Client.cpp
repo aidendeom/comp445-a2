@@ -104,6 +104,7 @@ void Client::threeWayHandshake()
 		synNumber = rand();
 		p.syn = true;
 		p.seqNo = synNumber;
+		int expectedAckNo = synNumber + 1;
 
 		printf_s("Sending SYN %d\n", p.seqNo);
 		sendPacket(p);
@@ -117,24 +118,30 @@ void Client::threeWayHandshake()
 		}
 		else
 		{
-			sent = true;
-			// Ex:
-			//	seqNo  = 1001 0100
-			//	!seqNo = 0110 1011
-			//	|= 1   = 0000 0001
-			initialSeqNo = (!p.seqNo) & 1;
-			currentSeqNo = initialSeqNo;
 			recvPacket(p);
-			printf_s("Received SYN/ACK packet: SYN -> %d ACK -> %d\n", p.seqNo, p.ackNo);
+
+			if (p.ackNo == expectedAckNo)
+			{
+				sent = true;
+				// Ex:
+				//	seqNo  = 1001 0100
+				//	!seqNo = 0110 1011
+				//	|= 1   = 0000 0001
+				currentSeqNo = (~p.seqNo) & 1;
+				expectedSeqNo = (~p.seqNo) & 1;
+				printf_s("Received SYN/ACK packet: SYN -> %d ACK -> %d\n", p.seqNo, p.ackNo);
+			}
+			else
+			{
+				printf_s("Received AckNo %d, expected %d\n", p.ackNo, expectedAckNo);
+			}
 		}
 	}
 
-	if (p.ackNo != synNumber + 1)
-		throw "Three way handshake failed\n";
-
-	connectionAckNo = p.ackNo = p.seqNo + 1;
+	p.ackNo = p.seqNo + 1;
 
 	printf_s("Sending final ACK %d\n", p.ackNo);
+	connectionAck = p.ackNo;
 	sendPacket(p);
 	std::cout << "Handshake success!" << std::endl << std::flush;
 }
@@ -142,14 +149,19 @@ void Client::threeWayHandshake()
 void Client::sendFile()
 {
 	std::ifstream file;
+	std::string filename;
 	do
 	{
-		std::string filename = selectFile();
+		filename = selectFile();
 		file.open(filename, std::ios::binary | std::ios::ate);
 	} while (!file.is_open());
 
 	size_t filesize = static_cast<size_t>(file.tellg());
 	file.seekg(0);
+
+	Packet p;
+	sprintf_s(p.data, filename.length() + 1, filename.c_str());
+	sendPacketWithACK(p);
 
 	sendFile(file, filesize);
 }
@@ -222,6 +234,8 @@ void Client::sendPacketWithACK(const Packet& p)
 				if (response.ackNo == expectedAckNo)
 				{
 					sent = true;
+					expectedSeqNo ^= 1;
+					currentSeqNo ^= 1;
 				}
 				else
 				{
@@ -235,8 +249,6 @@ void Client::sendPacketWithACK(const Packet& p)
 			// TODO: Log the error
 		}
 	}
-
-	currentSeqNo ^= 1;
 }
 
 void Client::sendPacket(const Packet& p)
