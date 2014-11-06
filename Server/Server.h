@@ -20,10 +20,11 @@ private:
 	SOCKADDR_IN sa_out;
 	std::string router_hostname;
 	int connectionAckNo;
+	int expectedSeqNo;
 
-	// Returns true if a connection has been made
-	bool threeWayHandshake();
+	void threeWayHandshake();
 	void sendPacket(const Packet& p);
+	void recvFile();
 	void recvPacket(Packet& p);
 	bool recvPacketWithACK(Packet& p);
 };

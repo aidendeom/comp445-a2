@@ -137,10 +137,17 @@ void prompt(const char *str, char *buffer, size_t bufferlen)
 	std::cout << std::endl << std::flush;
 }
 
+int readFileSize(std::string filename)
+{
+	std::ifstream file(filename, std::ios::ate);
+	return (int)file.tellg();
+}
+
 struct Packet
 {
 	static const size_t DATA_LENGTH{ 1024 };
 
+	bool syn;
 	int seqNo;
 	int ackNo;
 	size_t length;

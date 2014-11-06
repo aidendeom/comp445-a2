@@ -75,13 +75,22 @@ void Server::run()
 	try
 	{
 		// Keep waiting for a connection
-		while (!threeWayHandshake());
+		bool connected = false;
+		while (!connected)
+		{
+			try
+			{
+				threeWayHandshake();
+				connected = true;
+			}
+			catch (const char *str)
+			{
+				printf_s(str);
+			}
+		}
 
-		while (!recvPacketWithACK(p));
-		std::cout << p.data << std::endl << std::flush;
-
-		while (!recvPacketWithACK(p));
-		std::cout << p.data << std::endl << std::flush;
+		// Connected
+		recvFile();
 	}
 	catch (const char* str)
 	{
@@ -89,7 +98,7 @@ void Server::run()
 	}
 }
 
-bool Server::threeWayHandshake()
+void Server::threeWayHandshake()
 {
 	Packet p;
 
@@ -101,61 +110,83 @@ bool Server::threeWayHandshake()
 
 	recvPacket(p);
 	printf_s("Received SYN packet: %d\n", p.seqNo, p.ackNo);
+
+	expectedSeqNo = (!p.seqNo) & 1;
+
 	p.ackNo = p.seqNo + 1;
 	int num = rand();
 	p.seqNo = num;
+	p.syn = true;
 
-	printf_s("Sending SYN/ACL packet: SYN -> %d ACK -> %d\n", p.seqNo, p.ackNo);
-	sendPacket(p);
+	bool sent = false;
 
-	FD_ZERO(&readfds);
-	FD_SET(s, &readfds);
-
-	if (select(1, &readfds, nullptr, nullptr, &tp) == 0)
+	while (!sent)
 	{
-		printf_s("Timeout in handshake waiting for final ACK\n");
-		return false;
+		printf_s("Sending SYN/ACK packet: SYN -> %d ACK -> %d\n", p.seqNo, p.ackNo);
+		sendPacket(p);
+
+		FD_ZERO(&readfds);
+		FD_SET(s, &readfds);
+
+		if (select(1, &readfds, nullptr, nullptr, &tp) == 0)
+		{
+			printf_s("Timeout in handshake waiting for final ACK\n");
+		}
+		else
+		{
+			sent = true;
+			recvPacket(p);
+			printf_s("Received final ACK packet: %d\n", p.ackNo);
+
+			connectionAckNo = num + 1;
+
+			if (p.ackNo != connectionAckNo)
+				throw "Three way handshake failed\n";
+
+			std::cout << "Handshake success!" << std::endl << std::flush;
+		}
 	}
-	else
+}
+
+void Server::recvFile()
+{
+	Packet p;
+
+	std::ofstream file("received_file.pdf", std::ios::binary | std::ios::trunc);
+
+	do
 	{
-		recvPacket(p);
-		printf_s("Received final ACK packet: %d\n", p.ackNo);
-	}
+		while (!recvPacketWithACK(p));
+		file.write(p.data, p.length);
+	} while (p.length == Packet::DATA_LENGTH);
 
-	connectionAckNo = num + 1;
-
-	if (p.ackNo != connectionAckNo)
-		throw "Three way handshake failed\n";
-
-	std::cout << "Handshake success!" << std::endl << std::flush;
-
-	return true;
+	std::cout << "Receive done!";
 }
 
 bool Server::recvPacketWithACK(Packet& p)
 {
-	static int expectedSequenceNo = 0;
-
 	Packet response;
 
 	recvPacket(p);
 	printf_s("Received packet, SeqNo = %d\n", p.seqNo);
 
-	response.ackNo = p.seqNo;
-	sendPacket(response);
-	printf_s("Sending response, AckNo = %d\n", response.ackNo);
-
-	if (p.seqNo == expectedSequenceNo && p.ackNo == connectionAckNo)
+	if (p.seqNo == expectedSeqNo)
 	{
-		if (expectedSequenceNo == 0)
-			expectedSequenceNo = 1;
-		else
-			expectedSequenceNo = 0;
+		response.ackNo = p.seqNo;
+		sendPacket(response);
+		printf_s("Sending response, AckNo = %d\n", response.ackNo);
+
+		expectedSeqNo ^= 1;
 
 		return true;
 	}
-
-	return false;
+	else
+	{
+		printf_s("Unexpectected SeqNo %d, sending ACK\n", p.seqNo);
+		response.ackNo = p.seqNo;
+		sendPacket(response);
+		return false;
+	}
 }
 
 void Server::sendPacket(const Packet& p)

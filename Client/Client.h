@@ -20,11 +20,17 @@ private:
 	SOCKADDR_IN sa_out;
 	std::string router_hostname;
 	int connectionAckNo;
+	bool enableLogging;
+	int initialSeqNo;
+	int currentSeqNo;
 
-	// Returns true if connection has been made.
-	bool threeWayHandshake();
+	void threeWayHandshake();
 	void sendPacket(const Packet& p);
 	void recvPacket(Packet& p);
 	void sendPacketWithACK(const Packet& p);
+	void sendFile();
+	void sendFile(std::ifstream& file, size_t filesize);
+	std::string selectFile();
+	void log(const char *str);
 };
 

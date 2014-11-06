@@ -27,15 +27,8 @@
 *.out
 *.app
 
-# Project files
-#*.vcxproj
-#*.filters
-#*.ilk
-#*.pdb
-#*.log
-#*.tlog
-#*.sln
-#*.suo
-#*.sdf
-#*.idb
-#*.opensdf
+*.sdf
+*.opensdf
+*.suo
+*.vcxproj.user
+ipch/

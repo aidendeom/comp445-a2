@@ -5,7 +5,8 @@
 #include "../Router/Router.h"
 #include "../Utils/Utils.h"
 
-Client::Client()
+Client::Client() :
+	enableLogging{ false }
 {
 	std::cout << "=== CLIENT ===" << std::endl << std::flush;
 	try
@@ -74,16 +75,9 @@ void Client::run()
 	try
 	{
 		// Keep trying to connect to server
-		while(!threeWayHandshake());
+		threeWayHandshake();
 
-		p.ackNo = connectionAckNo;
-		p.seqNo = 0;
-		sprintf_s(p.data, "Hello, world!");
-		sendPacketWithACK(p);
-
-		p.seqNo = 1;
-		sprintf_s(p.data, "This is the second message");
-		sendPacketWithACK(p);
+		sendFile();
 	}
 	catch (const char* str)
 	{
@@ -91,7 +85,7 @@ void Client::run()
 	}
 }
 
-bool Client::threeWayHandshake()
+void Client::threeWayHandshake()
 {
 	Packet p;
 
@@ -101,33 +95,94 @@ bool Client::threeWayHandshake()
 
 	fd_set readfds;
 
-	int synNumber = rand();
-	p.seqNo = synNumber;
+	int synNumber;
+	
+	bool sent = false;
 
-	printf_s("Sending SYN %d\n", p.seqNo);
-	sendPacket(p);
-
-	FD_ZERO(&readfds);
-	FD_SET(s, &readfds);
-
-	if (select(1, &readfds, nullptr, nullptr, &tp) == 0)
+	while (!sent)
 	{
-		printf_s("Timeout during handshake waiting for SYN+ACK\n");
-		return false;
-	}
+		synNumber = rand();
+		p.syn = true;
+		p.seqNo = synNumber;
 
-	recvPacket(p);
-	printf_s("Received SYN/ACK packet: SYN -> %d ACK -> %d\n", p.seqNo, p.ackNo);
+		printf_s("Sending SYN %d\n", p.seqNo);
+		sendPacket(p);
+
+		FD_ZERO(&readfds);
+		FD_SET(s, &readfds);
+
+		if (select(1, &readfds, nullptr, nullptr, &tp) == 0)
+		{
+			log("Timeout during handshake waiting for SYN+ACK\n");
+		}
+		else
+		{
+			sent = true;
+			// Ex:
+			//	seqNo  = 1001 0100
+			//	!seqNo = 0110 1011
+			//	|= 1   = 0000 0001
+			initialSeqNo = (!p.seqNo) & 1;
+			currentSeqNo = initialSeqNo;
+			recvPacket(p);
+			printf_s("Received SYN/ACK packet: SYN -> %d ACK -> %d\n", p.seqNo, p.ackNo);
+		}
+	}
 
 	if (p.ackNo != synNumber + 1)
 		throw "Three way handshake failed\n";
 
 	connectionAckNo = p.ackNo = p.seqNo + 1;
+
 	printf_s("Sending final ACK %d\n", p.ackNo);
 	sendPacket(p);
 	std::cout << "Handshake success!" << std::endl << std::flush;
+}
 
-	return true;
+void Client::sendFile()
+{
+	std::ifstream file;
+	do
+	{
+		std::string filename = selectFile();
+		file.open(filename, std::ios::binary | std::ios::ate);
+	} while (!file.is_open());
+
+	size_t filesize = static_cast<size_t>(file.tellg());
+	file.seekg(0);
+
+	sendFile(file, filesize);
+}
+
+void Client::sendFile(std::ifstream& file, size_t filesize)
+{
+	Packet p;
+
+	size_t numBuffs = (filesize / Packet::DATA_LENGTH) + 1;
+	size_t remainder = filesize % Packet::DATA_LENGTH;
+
+	for (size_t i = 0; i < numBuffs; i++)
+	{
+		size_t length = i == numBuffs - 1 ? remainder : Packet::DATA_LENGTH;
+
+		file.read(p.data, length);
+		p.length = length;
+		p.seqNo = currentSeqNo;
+
+		sendPacketWithACK(p);
+	}
+
+	std::cout << "Done sending file" << std::endl;
+}
+
+std::string Client::selectFile()
+{
+	std::cout << "Local file listing:" << std::endl;
+	std::cout << getDirectoryItems() << std::endl;
+	std::cout << "Select a file: ";
+	std::string filename;
+	std::cin >> filename;
+	return filename;
 }
 
 void Client::sendPacketWithACK(const Packet& p)
@@ -165,7 +220,9 @@ void Client::sendPacketWithACK(const Packet& p)
 				recvPacket(response);
 				printf_s("Received response. AckNo = %d, expected = %d\n", response.ackNo, expectedAckNo);
 				if (response.ackNo == expectedAckNo)
+				{
 					sent = true;
+				}
 				else
 				{
 					throw "Response ACK number not equal! Resending...\n";
@@ -178,6 +235,8 @@ void Client::sendPacketWithACK(const Packet& p)
 			// TODO: Log the error
 		}
 	}
+
+	currentSeqNo ^= 1;
 }
 
 void Client::sendPacket(const Packet& p)
@@ -200,6 +259,11 @@ void Client::recvPacket(Packet& p)
 		throw "Recieve failed\n";
 
 	memcpy(&p, buffer, len);
+}
+
+void Client::log(const char *str)
+{
+	std::cout << str << std::endl << std::flush;
 }
 
 int main()

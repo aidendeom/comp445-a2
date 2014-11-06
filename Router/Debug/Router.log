@@ -1,9 +1,9 @@
-﻿Build started 11/5/2014 1:37:07 PM.
-     1>Project "C:\Users\Aiden\Documents\comp445-a2\Router\Router.vcxproj" on node 4 (Build target(s)).
+﻿Build started 05-Nov-14 5:49:41 PM.
+     1>Project "E:\Documents\comp445-a2\Router\Router.vcxproj" on node 3 (Build target(s)).
      1>Link:
-         Router.vcxproj -> C:\Users\Aiden\Documents\comp445-a2\Debug\Router.exe
-     1>Done Building Project "C:\Users\Aiden\Documents\comp445-a2\Router\Router.vcxproj" (Build target(s)).
+         Router.vcxproj -> E:\Documents\comp445-a2\Debug\Router.exe
+     1>Done Building Project "E:\Documents\comp445-a2\Router\Router.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.98
+Time Elapsed 00:00:00.02
