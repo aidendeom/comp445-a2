@@ -24,9 +24,12 @@ private:
 	int expectedSeqNo;
 
 	void threeWayHandshake();
-	void sendPacket(const Packet& p);
+	void sendFile();
+	void sendFile(std::ifstream& file, size_t filesize);
 	void recvFile();
+	void sendPacket(const Packet& p);
 	void recvPacket(Packet& p);
 	bool recvPacketWithACK(Packet& p);
+	void sendPacketWithACK(const Packet& p);
 };
 

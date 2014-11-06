@@ -28,9 +28,11 @@ private:
 	void sendPacket(const Packet& p);
 	void recvPacket(Packet& p);
 	void sendPacketWithACK(const Packet& p);
+	bool recvPacketWithACK(Packet& p);
 	void sendFile();
 	void sendFile(std::ifstream& file, size_t filesize);
-	std::string selectFile();
+	std::string selectLocalFile();
+	void recvFile();
 	void log(const char *str);
 };
 

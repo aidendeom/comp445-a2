@@ -90,7 +90,8 @@ void Server::run()
 		}
 
 		// Connected
-		recvFile();
+		//recvFile();
+		sendFile();
 	}
 	catch (const char* str)
 	{
@@ -134,6 +135,7 @@ void Server::threeWayHandshake()
 		}
 		else
 		{
+			currentSeqNo = (~p.seqNo) & 1;
 			sent = true;
 			recvPacket(p);
 			printf_s("Received final ACK packet: %d\n", p.ackNo);
@@ -146,6 +148,44 @@ void Server::threeWayHandshake()
 			std::cout << "Handshake success!" << std::endl << std::flush;
 		}
 	}
+	printf_s("Current SeqNo %d\nExpected SeqNo %d\n", currentSeqNo, expectedSeqNo);
+}
+
+void Server::sendFile()
+{
+	Packet p;
+
+	// Get filename
+	while (!recvPacketWithACK(p));
+
+	std::string filename(p.data);
+
+	std::ifstream file(filename, std::ios::binary | std::ios::ate);
+	size_t filesize = static_cast<size_t>(file.tellg());
+	file.seekg(0);
+
+	sendFile(file, filesize);
+}
+
+void Server::sendFile(std::ifstream& file, size_t filesize)
+{
+	Packet p;
+
+	size_t numBuffs = (filesize / Packet::DATA_LENGTH) + 1;
+	size_t remainder = filesize % Packet::DATA_LENGTH;
+
+	for (size_t i = 0; i < numBuffs; i++)
+	{
+		size_t length = i == numBuffs - 1 ? remainder : Packet::DATA_LENGTH;
+
+		file.read(p.data, length);
+		p.length = length;
+		p.seqNo = currentSeqNo;
+
+		sendPacketWithACK(p);
+	}
+
+	std::cout << "Done sending file" << std::endl;
 }
 
 void Server::recvFile()
@@ -166,6 +206,60 @@ void Server::recvFile()
 	} while (p.length == Packet::DATA_LENGTH);
 
 	std::cout << "Receive done!";
+}
+
+void Server::sendPacketWithACK(const Packet& p)
+{
+	int expectedAckNo = p.seqNo;
+
+	Packet response;
+
+	timeval tp;
+	tp.tv_sec = 0;
+	tp.tv_usec = TIMEOUT_USEC;
+
+	fd_set readfds;
+
+	bool sent = false;
+
+	while (!sent)
+	{
+		try
+		{
+			// Set which sockets to watch
+			FD_ZERO(&readfds);
+			FD_SET(s, &readfds);
+
+			// TODO: Optimize so that it doesn't recopy to the buffer on a dropped packet
+			printf_s("Sending packet SeqNo = %d\n", p.seqNo);
+			sendPacket(p);
+
+			if (select(1, &readfds, nullptr, nullptr, &tp) == 0)
+			{
+				throw "Timeout while waiting for response! Resending...\n";
+			}
+			else
+			{
+				recvPacket(response);
+				printf_s("Received response. AckNo = %d, expected = %d\n", response.ackNo, expectedAckNo);
+				if (response.ackNo == expectedAckNo)
+				{
+					sent = true;
+					//expectedSeqNo ^= 1;
+					currentSeqNo ^= 1;
+				}
+				else
+				{
+					throw "Response ACK number not equal! Resending...\n";
+				}
+			}
+		}
+		catch (const char *str)
+		{
+			std::cout << str << WSAGetLastError() << std::endl << std::flush;
+			// TODO: Log the error
+		}
+	}
 }
 
 bool Server::recvPacketWithACK(Packet& p)

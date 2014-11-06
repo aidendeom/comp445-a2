@@ -77,7 +77,8 @@ void Client::run()
 		// Keep trying to connect to server
 		threeWayHandshake();
 
-		sendFile();
+		//sendFile();
+		recvFile();
 	}
 	catch (const char* str)
 	{
@@ -118,16 +119,12 @@ void Client::threeWayHandshake()
 		}
 		else
 		{
+			currentSeqNo = (~p.seqNo) & 1;
 			recvPacket(p);
 
 			if (p.ackNo == expectedAckNo)
 			{
 				sent = true;
-				// Ex:
-				//	seqNo  = 1001 0100
-				//	!seqNo = 0110 1011
-				//	|= 1   = 0000 0001
-				currentSeqNo = (~p.seqNo) & 1;
 				expectedSeqNo = (~p.seqNo) & 1;
 				printf_s("Received SYN/ACK packet: SYN -> %d ACK -> %d\n", p.seqNo, p.ackNo);
 			}
@@ -144,6 +141,7 @@ void Client::threeWayHandshake()
 	connectionAck = p.ackNo;
 	sendPacket(p);
 	std::cout << "Handshake success!" << std::endl << std::flush;
+	printf_s("Current SeqNo %d\nExpected SeqNo %d\n", currentSeqNo, expectedSeqNo);
 }
 
 void Client::sendFile()
@@ -152,7 +150,7 @@ void Client::sendFile()
 	std::string filename;
 	do
 	{
-		filename = selectFile();
+		filename = selectLocalFile();
 		file.open(filename, std::ios::binary | std::ios::ate);
 	} while (!file.is_open());
 
@@ -160,6 +158,7 @@ void Client::sendFile()
 	file.seekg(0);
 
 	Packet p;
+	p.seqNo = currentSeqNo;
 	sprintf_s(p.data, filename.length() + 1, filename.c_str());
 	sendPacketWithACK(p);
 
@@ -187,7 +186,7 @@ void Client::sendFile(std::ifstream& file, size_t filesize)
 	std::cout << "Done sending file" << std::endl;
 }
 
-std::string Client::selectFile()
+std::string Client::selectLocalFile()
 {
 	std::cout << "Local file listing:" << std::endl;
 	std::cout << getDirectoryItems() << std::endl;
@@ -195,6 +194,29 @@ std::string Client::selectFile()
 	std::string filename;
 	std::cin >> filename;
 	return filename;
+}
+
+void Client::recvFile()
+{
+	Packet p;
+
+	std::cout << "Select remote file to GET: ";
+	std::string filename;
+	std::cin >> filename;
+
+	p.seqNo = currentSeqNo;
+	sprintf_s(p.data, filename.length() + 1, filename.c_str());
+	sendPacketWithACK(p);
+
+	std::ofstream file(filename, std::ios::binary | std::ios::trunc);
+
+	do
+	{
+		while (!recvPacketWithACK(p));
+		file.write(p.data, p.length);
+	} while (p.length == Packet::DATA_LENGTH);
+
+	std::cout << "Receive done!";
 }
 
 void Client::sendPacketWithACK(const Packet& p)
@@ -234,7 +256,7 @@ void Client::sendPacketWithACK(const Packet& p)
 				if (response.ackNo == expectedAckNo)
 				{
 					sent = true;
-					expectedSeqNo ^= 1;
+					//expectedSeqNo ^= 1;
 					currentSeqNo ^= 1;
 				}
 				else
@@ -248,6 +270,32 @@ void Client::sendPacketWithACK(const Packet& p)
 			std::cout << str << WSAGetLastError() << std::endl << std::flush;
 			// TODO: Log the error
 		}
+	}
+}
+
+bool Client::recvPacketWithACK(Packet& p)
+{
+	Packet response;
+
+	recvPacket(p);
+	printf_s("Received packet, SeqNo = %d\n", p.seqNo);
+
+	if (p.seqNo == expectedSeqNo)
+	{
+		response.ackNo = p.seqNo;
+		sendPacket(response);
+		printf_s("Sending response, AckNo = %d\n", response.ackNo);
+
+		expectedSeqNo ^= 1;
+
+		return true;
+	}
+	else
+	{
+		printf_s("Unexpectected SeqNo %d, sending ACK\n", p.seqNo);
+		response.ackNo = p.seqNo;
+		sendPacket(response);
+		return false;
 	}
 }
 
