@@ -9,7 +9,8 @@
 #include "../Utils/log.h"
 
 Client::Client(bool debug) :
-	enableLogging{ debug }
+enableLogging{ debug },
+packetCount{ 0 }
 {
 	std::cout << "=== CLIENT ===" << std::endl << std::flush;
 	try
@@ -64,6 +65,7 @@ Client::Client(bool debug) :
 
 		srand((unsigned)time(nullptr));
 
+		std::cout << "Client ready" << std::endl;
 		FILE_LOG(logDEBUG) << "Client ready";
 	}
 	catch (const char *str)
@@ -249,6 +251,7 @@ void Client::sendFile(std::ifstream& file, size_t filesize)
 		numPacketsSent++;
 	}
 
+	std::cout << "File transfer complete" << std::endl;
 	FILE_LOG(logDEBUG) << "File transfer complete";
 	FILE_LOG(logDEBUG) << "\t# effective bytes sent: " << filesize;
 	FILE_LOG(logDEBUG) << "\t# packets sent:         " << numPacketsSent;
@@ -295,6 +298,7 @@ void Client::recvFile()
 	std::ifstream newFile(filename, std::ios::ate);
 	size_t filesize = static_cast<size_t>(newFile.tellg());
 
+	std::cout << "File transfer complete" << std::endl;
 	FILE_LOG(logDEBUG) << "File transfer complete";
 	FILE_LOG(logDEBUG) << "\t# effective bytes sent: " << filesize;
 	FILE_LOG(logDEBUG) << "\t# packets sent:         " << numPacketsRecvd;
@@ -353,7 +357,7 @@ bool Client::recvPacketWithACK(Packet& p)
 	Packet response;
 
 	recvPacket(p);
-	FILE_LOG(logDEBUG) << "Receivec packet, SeqNo = " << p.seqNo;
+	FILE_LOG(logDEBUG) << "Received packet, SeqNo = " << p.seqNo;
 
 	if (p.seqNo == expectedSeqNo)
 	{
@@ -398,7 +402,8 @@ void Client::recvPacket(Packet& p)
 
 int main()
 {
-	Client c(false);
+	// Set to true for logging
+	Client c(true);
 	c.run();
 	return 0;
 }

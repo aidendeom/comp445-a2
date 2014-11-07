@@ -79,7 +79,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp" />
-    <ClCompile Include="Client2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Utils\Utils.h" />

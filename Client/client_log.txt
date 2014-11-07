@@ -1,0 +1,253 @@
+- 21:24:41.000 DEBUG: Client started on Aiden-Desktop
+- 21:24:55.305 DEBUG: Client ready
+- 21:24:55.305 DEBUG: Sending SYN 1930
+- 21:24:55.321 DEBUG: Received SYN+ACK: SYN -> 1898 ACK -> 1931
+- 21:24:55.321 DEBUG: Sending final ACK 1899
+- 21:24:55.321 DEBUG: Handshake success, connected to server!
+- 21:24:55.321 DEBUG: Current SeqNo: 1
+- 21:24:55.321 DEBUG: Expected SeqNo: 1
+- 21:25:20.766 DEBUG: Sent packet 0, SeqNo 1
+- 21:25:20.782 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:20.782 DEBUG: Received proper ACK for packet 0
+- 21:25:27.442 DEBUG: Sending file client.pdf with size 77962 bytes
+- 21:25:27.442 DEBUG: Sent packet 1, SeqNo 0
+- 21:25:27.457 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:27.457 DEBUG: Received proper ACK for packet 1
+- 21:25:27.457 DEBUG: Sent packet 2, SeqNo 1
+- 21:25:27.473 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:27.473 DEBUG: Received proper ACK for packet 2
+- 21:25:27.473 DEBUG: Sent packet 3, SeqNo 0
+- 21:25:27.473 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:27.473 DEBUG: Received proper ACK for packet 3
+- 21:25:27.473 DEBUG: Sent packet 4, SeqNo 1
+- 21:25:27.473 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:27.473 DEBUG: Received proper ACK for packet 4
+- 21:25:27.473 DEBUG: Sent packet 5, SeqNo 0
+- 21:25:27.488 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:27.488 DEBUG: Received proper ACK for packet 5
+- 21:25:27.488 DEBUG: Sent packet 6, SeqNo 1
+- 21:25:27.488 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:27.488 DEBUG: Received proper ACK for packet 6
+- 21:25:27.488 DEBUG: Sent packet 7, SeqNo 0
+- 21:25:27.504 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:27.504 DEBUG: Received proper ACK for packet 7
+- 21:25:27.504 DEBUG: Sent packet 8, SeqNo 1
+- 21:25:27.520 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:27.520 DEBUG: Received proper ACK for packet 8
+- 21:25:27.520 DEBUG: Sent packet 9, SeqNo 0
+- 21:25:27.520 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:27.520 DEBUG: Received proper ACK for packet 9
+- 21:25:27.520 DEBUG: Sent packet 10, SeqNo 1
+- 21:25:27.520 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:27.520 DEBUG: Received proper ACK for packet 10
+- 21:25:27.520 DEBUG: Sent packet 11, SeqNo 0
+- 21:25:27.535 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:27.535 DEBUG: Received proper ACK for packet 11
+- 21:25:27.535 DEBUG: Sent packet 12, SeqNo 1
+- 21:25:27.535 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:27.535 DEBUG: Received proper ACK for packet 12
+- 21:25:27.535 DEBUG: Sent packet 13, SeqNo 0
+- 21:25:27.551 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:27.551 DEBUG: Received proper ACK for packet 13
+- 21:25:27.551 DEBUG: Sent packet 14, SeqNo 1
+- 21:25:27.551 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:27.551 DEBUG: Received proper ACK for packet 14
+- 21:25:27.551 DEBUG: Sent packet 15, SeqNo 0
+- 21:25:27.566 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:27.566 DEBUG: Received proper ACK for packet 15
+- 21:25:27.566 DEBUG: Sent packet 16, SeqNo 1
+- 21:25:27.566 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:27.566 DEBUG: Received proper ACK for packet 16
+- 21:25:27.566 DEBUG: Sent packet 17, SeqNo 0
+- 21:25:27.582 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:27.582 DEBUG: Received proper ACK for packet 17
+- 21:25:27.582 DEBUG: Sent packet 18, SeqNo 1
+- 21:25:27.582 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:27.582 DEBUG: Received proper ACK for packet 18
+- 21:25:27.582 DEBUG: Sent packet 19, SeqNo 0
+- 21:25:27.598 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:27.598 DEBUG: Received proper ACK for packet 19
+- 21:25:27.598 DEBUG: Sent packet 20, SeqNo 1
+- 21:25:27.598 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:27.598 DEBUG: Received proper ACK for packet 20
+- 21:25:27.598 DEBUG: Sent packet 21, SeqNo 0
+- 21:25:27.613 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:27.613 DEBUG: Received proper ACK for packet 21
+- 21:25:27.613 DEBUG: Sent packet 22, SeqNo 1
+- 21:25:27.613 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:27.613 DEBUG: Received proper ACK for packet 22
+- 21:25:27.613 DEBUG: Sent packet 23, SeqNo 0
+- 21:25:27.629 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:27.629 DEBUG: Received proper ACK for packet 23
+- 21:25:27.629 DEBUG: Sent packet 24, SeqNo 1
+- 21:25:27.629 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:27.629 DEBUG: Received proper ACK for packet 24
+- 21:25:27.629 DEBUG: Sent packet 25, SeqNo 0
+- 21:25:27.644 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:27.644 DEBUG: Received proper ACK for packet 25
+- 21:25:27.644 DEBUG: Sent packet 26, SeqNo 1
+- 21:25:27.644 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:27.644 DEBUG: Received proper ACK for packet 26
+- 21:25:27.644 DEBUG: Sent packet 27, SeqNo 0
+- 21:25:27.660 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:27.660 DEBUG: Received proper ACK for packet 27
+- 21:25:27.660 DEBUG: Sent packet 28, SeqNo 1
+- 21:25:28.660 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.660 DEBUG: Received proper ACK for packet 28
+- 21:25:28.660 DEBUG: Sent packet 29, SeqNo 0
+- 21:25:28.676 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.676 DEBUG: Received proper ACK for packet 29
+- 21:25:28.676 DEBUG: Sent packet 30, SeqNo 1
+- 21:25:28.676 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.676 DEBUG: Received proper ACK for packet 30
+- 21:25:28.676 DEBUG: Sent packet 31, SeqNo 0
+- 21:25:28.691 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.691 DEBUG: Received proper ACK for packet 31
+- 21:25:28.691 DEBUG: Sent packet 32, SeqNo 1
+- 21:25:28.691 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.691 DEBUG: Received proper ACK for packet 32
+- 21:25:28.691 DEBUG: Sent packet 33, SeqNo 0
+- 21:25:28.707 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.707 DEBUG: Received proper ACK for packet 33
+- 21:25:28.707 DEBUG: Sent packet 34, SeqNo 1
+- 21:25:28.707 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.707 DEBUG: Received proper ACK for packet 34
+- 21:25:28.707 DEBUG: Sent packet 35, SeqNo 0
+- 21:25:28.707 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.707 DEBUG: Received proper ACK for packet 35
+- 21:25:28.707 DEBUG: Sent packet 36, SeqNo 1
+- 21:25:28.722 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.722 DEBUG: Received proper ACK for packet 36
+- 21:25:28.722 DEBUG: Sent packet 37, SeqNo 0
+- 21:25:28.722 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.722 DEBUG: Received proper ACK for packet 37
+- 21:25:28.722 DEBUG: Sent packet 38, SeqNo 1
+- 21:25:28.738 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.738 DEBUG: Received proper ACK for packet 38
+- 21:25:28.738 DEBUG: Sent packet 39, SeqNo 0
+- 21:25:28.738 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.738 DEBUG: Received proper ACK for packet 39
+- 21:25:28.738 DEBUG: Sent packet 40, SeqNo 1
+- 21:25:28.754 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.754 DEBUG: Received proper ACK for packet 40
+- 21:25:28.754 DEBUG: Sent packet 41, SeqNo 0
+- 21:25:28.754 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.754 DEBUG: Received proper ACK for packet 41
+- 21:25:28.754 DEBUG: Sent packet 42, SeqNo 1
+- 21:25:28.769 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.769 DEBUG: Received proper ACK for packet 42
+- 21:25:28.769 DEBUG: Sent packet 43, SeqNo 0
+- 21:25:28.769 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.769 DEBUG: Received proper ACK for packet 43
+- 21:25:28.769 DEBUG: Sent packet 44, SeqNo 1
+- 21:25:28.785 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.785 DEBUG: Received proper ACK for packet 44
+- 21:25:28.785 DEBUG: Sent packet 45, SeqNo 0
+- 21:25:28.785 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.785 DEBUG: Received proper ACK for packet 45
+- 21:25:28.785 DEBUG: Sent packet 46, SeqNo 1
+- 21:25:28.800 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.800 DEBUG: Received proper ACK for packet 46
+- 21:25:28.800 DEBUG: Sent packet 47, SeqNo 0
+- 21:25:28.800 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.800 DEBUG: Received proper ACK for packet 47
+- 21:25:28.800 DEBUG: Sent packet 48, SeqNo 1
+- 21:25:28.816 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.816 DEBUG: Received proper ACK for packet 48
+- 21:25:28.816 DEBUG: Sent packet 49, SeqNo 0
+- 21:25:28.816 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.816 DEBUG: Received proper ACK for packet 49
+- 21:25:28.816 DEBUG: Sent packet 50, SeqNo 1
+- 21:25:28.816 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.816 DEBUG: Received proper ACK for packet 50
+- 21:25:28.816 DEBUG: Sent packet 51, SeqNo 0
+- 21:25:28.832 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.832 DEBUG: Received proper ACK for packet 51
+- 21:25:28.832 DEBUG: Sent packet 52, SeqNo 1
+- 21:25:28.832 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.832 DEBUG: Received proper ACK for packet 52
+- 21:25:28.832 DEBUG: Sent packet 53, SeqNo 0
+- 21:25:28.847 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.847 DEBUG: Received proper ACK for packet 53
+- 21:25:28.847 DEBUG: Sent packet 54, SeqNo 1
+- 21:25:28.847 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.847 DEBUG: Received proper ACK for packet 54
+- 21:25:28.847 DEBUG: Sent packet 55, SeqNo 0
+- 21:25:28.863 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.863 DEBUG: Received proper ACK for packet 55
+- 21:25:28.863 DEBUG: Sent packet 56, SeqNo 1
+- 21:25:28.863 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.863 DEBUG: Received proper ACK for packet 56
+- 21:25:28.863 DEBUG: Sent packet 57, SeqNo 0
+- 21:25:28.878 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.878 DEBUG: Received proper ACK for packet 57
+- 21:25:28.878 DEBUG: Sent packet 58, SeqNo 1
+- 21:25:28.878 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.878 DEBUG: Received proper ACK for packet 58
+- 21:25:28.878 DEBUG: Sent packet 59, SeqNo 0
+- 21:25:28.894 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.894 DEBUG: Received proper ACK for packet 59
+- 21:25:28.894 DEBUG: Sent packet 60, SeqNo 1
+- 21:25:28.894 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.894 DEBUG: Received proper ACK for packet 60
+- 21:25:28.894 DEBUG: Sent packet 61, SeqNo 0
+- 21:25:28.894 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.894 DEBUG: Received proper ACK for packet 61
+- 21:25:28.894 DEBUG: Sent packet 62, SeqNo 1
+- 21:25:28.910 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.910 DEBUG: Received proper ACK for packet 62
+- 21:25:28.910 DEBUG: Sent packet 63, SeqNo 0
+- 21:25:28.910 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.910 DEBUG: Received proper ACK for packet 63
+- 21:25:28.910 DEBUG: Sent packet 64, SeqNo 1
+- 21:25:28.925 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.925 DEBUG: Received proper ACK for packet 64
+- 21:25:28.925 DEBUG: Sent packet 65, SeqNo 0
+- 21:25:28.925 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.925 DEBUG: Received proper ACK for packet 65
+- 21:25:28.925 DEBUG: Sent packet 66, SeqNo 1
+- 21:25:28.941 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.941 DEBUG: Received proper ACK for packet 66
+- 21:25:28.941 DEBUG: Sent packet 67, SeqNo 0
+- 21:25:28.941 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.941 DEBUG: Received proper ACK for packet 67
+- 21:25:28.941 DEBUG: Sent packet 68, SeqNo 1
+- 21:25:28.956 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.956 DEBUG: Received proper ACK for packet 68
+- 21:25:28.956 DEBUG: Sent packet 69, SeqNo 0
+- 21:25:28.956 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.956 DEBUG: Received proper ACK for packet 69
+- 21:25:28.956 DEBUG: Sent packet 70, SeqNo 1
+- 21:25:28.972 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.972 DEBUG: Received proper ACK for packet 70
+- 21:25:28.972 DEBUG: Sent packet 71, SeqNo 0
+- 21:25:28.972 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.972 DEBUG: Received proper ACK for packet 71
+- 21:25:28.972 DEBUG: Sent packet 72, SeqNo 1
+- 21:25:28.972 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.972 DEBUG: Received proper ACK for packet 72
+- 21:25:28.972 DEBUG: Sent packet 73, SeqNo 0
+- 21:25:28.988 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.988 DEBUG: Received proper ACK for packet 73
+- 21:25:28.988 DEBUG: Sent packet 74, SeqNo 1
+- 21:25:28.988 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.988 DEBUG: Received proper ACK for packet 74
+- 21:25:28.988 DEBUG: Sent packet 75, SeqNo 0
+- 21:25:28.003 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.003 DEBUG: Received proper ACK for packet 75
+- 21:25:28.003 DEBUG: Sent packet 76, SeqNo 1
+- 21:25:28.003 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.003 DEBUG: Received proper ACK for packet 76
+- 21:25:28.003 DEBUG: Sent packet 77, SeqNo 0
+- 21:25:28.003 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:28.003 DEBUG: Received proper ACK for packet 77
+- 21:25:28.003 DEBUG: Sent packet 78, SeqNo 1
+- 21:25:28.019 DEBUG: Received response. AckNo = 1, expected = 1
+- 21:25:28.019 DEBUG: Received proper ACK for packet 78
+- 21:25:28.019 DEBUG: File transfer complete
+- 21:25:28.019 DEBUG: 	# effective bytes sent: 77962
+- 21:25:28.019 DEBUG: 	# packets sent:         77
+- 21:25:28.019 DEBUG: 	# bytes sent:           80080
+- 21:25:33.572 DEBUG: Sent packet 79, SeqNo 0
+- 21:25:33.572 DEBUG: Received response. AckNo = 0, expected = 0
+- 21:25:33.572 DEBUG: Received proper ACK for packet 79
