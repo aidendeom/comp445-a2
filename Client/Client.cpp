@@ -1,12 +1,15 @@
 #include "Client.h"
 
 #include <iostream>
+#include <map>
+#include <functional>
 
 #include "../Router/Router.h"
 #include "../Utils/Utils.h"
+#include "../Utils/log.h"
 
-Client::Client() :
-	enableLogging{ false }
+Client::Client(bool debug) :
+	enableLogging{ debug }
 {
 	std::cout << "=== CLIENT ===" << std::endl << std::flush;
 	try
@@ -17,13 +20,21 @@ Client::Client() :
 		if (WSAStartup(0x0202, &wsadata) != 0)
 			throw "Error in starting WSAStartup()\n";
 
-		std::cout << std::endl
-			<< "wsadata.wVersion " << wsadata.wVersion << std::endl
-			<< "wsadata.wHighVersion " << wsadata.wHighVersion << std::endl
-			<< "wsadata.szDescription " << wsadata.szDescription << std::endl
-			<< "wsadata.szSystemStatus " << wsadata.szSystemStatus << std::endl
-			<< "wsadata.iMaxSockets " << wsadata.iMaxSockets << std::endl
-			<< "wsadata.iMaxUdpDg " << wsadata.iMaxUdpDg << std::endl;
+		if (enableLogging)
+		{
+			FILELog::ReportingLevel() = logDEBUG;
+			FILE *log_fd = fopen("client_log.txt", "w");
+			Output2FILE::Stream() = log_fd;
+		}
+		else
+		{
+			FILELog::ReportingLevel() = logINFO;
+		}
+
+		char localhost[256];
+		gethostname(localhost, 256);
+		local_hostname = localhost;
+		FILE_LOG(logDEBUG) << "Client started on " << local_hostname;
 
 		// Create socket
 		if ((s = socket(AF_INET, SOCK_DGRAM, 0)) == SOCKET_ERROR)
@@ -36,7 +47,7 @@ Client::Client() :
 		sa_in.sin_addr.s_addr = htonl(INADDR_ANY);
 
 		//Bind the UDP port
-		if (bind(s, (LPSOCKADDR)&sa_in, sizeof(sa_in)) == SOCKET_ERROR)
+		if (::bind(s, (LPSOCKADDR)&sa_in, sizeof(sa_in)) == SOCKET_ERROR)
 			throw "Socket bind failed\n";
 
 		std::cout << "Enter router hostname: " << std::flush;
@@ -53,11 +64,12 @@ Client::Client() :
 
 		srand((unsigned)time(nullptr));
 
-		std::cout << "Client ready" << std::endl << std::flush;
+		FILE_LOG(logDEBUG) << "Client ready";
 	}
 	catch (const char *str)
 	{
 		std::cout << str << WSAGetLastError() << std::endl << std::flush;
+		FILE_LOG(logERROR) << str << WSAGetLastError();
 	}
 }
 
@@ -70,6 +82,12 @@ Client::~Client()
 
 void Client::run()
 {
+	std::map<char, std::function<void()>> ops = 
+	{
+		{ 1, [this]() { recvFile(); } },
+		{ 2, [this]() { sendFile(); } }
+	};
+
 	Packet p;
 
 	try
@@ -77,12 +95,52 @@ void Client::run()
 		// Keep trying to connect to server
 		threeWayHandshake();
 
-		//sendFile();
-		recvFile();
+		bool stayConnected = true;
+		while (stayConnected)
+		{
+			char choice = selectOperation();
+
+			// Send the choice
+			p.seqNo = currentSeqNo;
+			p.data[0] = choice;
+			sendPacketWithACK(p);
+
+			// Execute the choice
+			auto result = ops.find(choice);
+			if (result != ops.end())
+			{
+				result->second();
+			}
+			else
+			{
+				stayConnected = false;
+			}
+		}
 	}
 	catch (const char* str)
 	{
 		std::cout << str << WSAGetLastError() << std::endl << std::flush;
+		FILE_LOG(logERROR) << str << WSAGetLastError();
+	}
+}
+
+char Client::selectOperation()
+{
+	char choice;
+	while (true)
+	{
+		std::cout << "Possible operations: " << std::endl
+			<< " 1. GET" << std::endl
+			<< " 2. PUT" << std::endl
+			<< " 0. EXIT" << std::endl;
+		std::cin >> choice;
+
+		choice -= '0';
+
+		if (0 <= choice && choice <= 2)
+		{
+			return choice;
+		}
 	}
 }
 
@@ -107,7 +165,7 @@ void Client::threeWayHandshake()
 		p.seqNo = synNumber;
 		int expectedAckNo = synNumber + 1;
 
-		printf_s("Sending SYN %d\n", p.seqNo);
+		FILE_LOG(logDEBUG) << "Sending SYN " << p.seqNo;
 		sendPacket(p);
 
 		FD_ZERO(&readfds);
@@ -115,7 +173,7 @@ void Client::threeWayHandshake()
 
 		if (select(1, &readfds, nullptr, nullptr, &tp) == 0)
 		{
-			log("Timeout during handshake waiting for SYN+ACK\n");
+			FILE_LOG(logDEBUG) << "Timeout during handshake waiting for SYN+ACK";
 		}
 		else
 		{
@@ -126,22 +184,24 @@ void Client::threeWayHandshake()
 			{
 				sent = true;
 				expectedSeqNo = (~p.seqNo) & 1;
-				printf_s("Received SYN/ACK packet: SYN -> %d ACK -> %d\n", p.seqNo, p.ackNo);
+				FILE_LOG(logDEBUG) << "Received SYN+ACK: SYN -> " << p.seqNo << " ACK -> " << p.ackNo;
 			}
 			else
 			{
-				printf_s("Received AckNo %d, expected %d\n", p.ackNo, expectedAckNo);
+				FILE_LOG(logDEBUG) << "Received SYN+ACK, unexpected AckNo " << p.ackNo << ", expected " << expectedAckNo;
 			}
 		}
 	}
 
 	p.ackNo = p.seqNo + 1;
 
-	printf_s("Sending final ACK %d\n", p.ackNo);
+	FILE_LOG(logDEBUG) << "Sending final ACK " << p.ackNo;
 	connectionAck = p.ackNo;
 	sendPacket(p);
-	std::cout << "Handshake success!" << std::endl << std::flush;
-	printf_s("Current SeqNo %d\nExpected SeqNo %d\n", currentSeqNo, expectedSeqNo);
+	FILE_LOG(logDEBUG) << "Handshake success, connected to server!";
+	std::cout << "Handshake success, connected to server!" << std::endl << std::flush;
+	FILE_LOG(logDEBUG) << "Current SeqNo: " << currentSeqNo;
+	FILE_LOG(logDEBUG) << "Expected SeqNo: " << expectedSeqNo;
 }
 
 void Client::sendFile()
@@ -157,6 +217,8 @@ void Client::sendFile()
 	size_t filesize = static_cast<size_t>(file.tellg());
 	file.seekg(0);
 
+	FILE_LOG(logDEBUG) << "Sending file " << filename << " with size " << filesize << " bytes";
+
 	Packet p;
 	p.seqNo = currentSeqNo;
 	sprintf_s(p.data, filename.length() + 1, filename.c_str());
@@ -167,6 +229,9 @@ void Client::sendFile()
 
 void Client::sendFile(std::ifstream& file, size_t filesize)
 {
+	// Number of packets sent for this transfer, NOT total sent.
+	size_t numPacketsSent{ 0 };
+	
 	Packet p;
 
 	size_t numBuffs = (filesize / Packet::DATA_LENGTH) + 1;
@@ -181,9 +246,13 @@ void Client::sendFile(std::ifstream& file, size_t filesize)
 		p.seqNo = currentSeqNo;
 
 		sendPacketWithACK(p);
+		numPacketsSent++;
 	}
 
-	std::cout << "Done sending file" << std::endl;
+	FILE_LOG(logDEBUG) << "File transfer complete";
+	FILE_LOG(logDEBUG) << "\t# effective bytes sent: " << filesize;
+	FILE_LOG(logDEBUG) << "\t# packets sent:         " << numPacketsSent;
+	FILE_LOG(logDEBUG) << "\t# bytes sent:           " << numPacketsSent * sizeof(p);
 }
 
 std::string Client::selectLocalFile()
@@ -198,11 +267,15 @@ std::string Client::selectLocalFile()
 
 void Client::recvFile()
 {
+	size_t numPacketsRecvd{ 0 };
+
 	Packet p;
 
 	std::cout << "Select remote file to GET: ";
 	std::string filename;
 	std::cin >> filename;
+
+	FILE_LOG(logDEBUG) << "Receiving file " << filename;
 
 	p.seqNo = currentSeqNo;
 	sprintf_s(p.data, filename.length() + 1, filename.c_str());
@@ -213,10 +286,19 @@ void Client::recvFile()
 	do
 	{
 		while (!recvPacketWithACK(p));
+		numPacketsRecvd++;
 		file.write(p.data, p.length);
 	} while (p.length == Packet::DATA_LENGTH);
 
-	std::cout << "Receive done!";
+	file.close();
+
+	std::ifstream newFile(filename, std::ios::ate);
+	size_t filesize = static_cast<size_t>(newFile.tellg());
+
+	FILE_LOG(logDEBUG) << "File transfer complete";
+	FILE_LOG(logDEBUG) << "\t# effective bytes sent: " << filesize;
+	FILE_LOG(logDEBUG) << "\t# packets sent:         " << numPacketsRecvd;
+	FILE_LOG(logDEBUG) << "\t# bytes sent:           " << numPacketsRecvd * sizeof(p);
 }
 
 void Client::sendPacketWithACK(const Packet& p)
@@ -235,40 +317,33 @@ void Client::sendPacketWithACK(const Packet& p)
 
 	while (!sent)
 	{
-		try
+		// Set which sockets to watch
+		FD_ZERO(&readfds);
+		FD_SET(s, &readfds);
+
+		// TODO: Optimize so that it doesn't recopy to the buffer on a dropped packet
+		sendPacket(p);
+		FILE_LOG(logDEBUG) << "Sent packet " << packetCount << ", SeqNo " << p.seqNo;
+		packetCount++;
+
+		if (select(1, &readfds, nullptr, nullptr, &tp) == 0)
 		{
-			// Set which sockets to watch
-			FD_ZERO(&readfds);
-			FD_SET(s, &readfds);
-
-			// TODO: Optimize so that it doesn't recopy to the buffer on a dropped packet
-			printf_s("Sending packet SeqNo = %d\n", p.seqNo);
-			sendPacket(p);
-
-			if (select(1, &readfds, nullptr, nullptr, &tp) == 0)
+			FILE_LOG(logDEBUG) << "Timeout while waiting for response. Resending...";
+		}
+		else
+		{
+			recvPacket(response);
+			FILE_LOG(logDEBUG) << "Received response. AckNo = " << response.ackNo << ", expected = " << expectedAckNo;
+			if (response.ackNo == expectedAckNo)
 			{
-				throw "Timeout while waiting for response! Resending...\n";
+				sent = true;
+				currentSeqNo ^= 1;
+				FILE_LOG(logDEBUG) << "Received proper ACK for packet " << packetCount - 1;
 			}
 			else
 			{
-				recvPacket(response);
-				printf_s("Received response. AckNo = %d, expected = %d\n", response.ackNo, expectedAckNo);
-				if (response.ackNo == expectedAckNo)
-				{
-					sent = true;
-					//expectedSeqNo ^= 1;
-					currentSeqNo ^= 1;
-				}
-				else
-				{
-					throw "Response ACK number not equal! Resending...\n";
-				}
+				FILE_LOG(logDEBUG) << "Response AckNo not equal. Resending...";
 			}
-		}
-		catch (const char *str)
-		{
-			std::cout << str << WSAGetLastError() << std::endl << std::flush;
-			// TODO: Log the error
 		}
 	}
 }
@@ -278,13 +353,13 @@ bool Client::recvPacketWithACK(Packet& p)
 	Packet response;
 
 	recvPacket(p);
-	printf_s("Received packet, SeqNo = %d\n", p.seqNo);
+	FILE_LOG(logDEBUG) << "Receivec packet, SeqNo = " << p.seqNo;
 
 	if (p.seqNo == expectedSeqNo)
 	{
 		response.ackNo = p.seqNo;
 		sendPacket(response);
-		printf_s("Sending response, AckNo = %d\n", response.ackNo);
+		FILE_LOG(logDEBUG) << "Sending response, AckNo = " << response.ackNo;
 
 		expectedSeqNo ^= 1;
 
@@ -292,7 +367,7 @@ bool Client::recvPacketWithACK(Packet& p)
 	}
 	else
 	{
-		printf_s("Unexpectected SeqNo %d, sending ACK\n", p.seqNo);
+		FILE_LOG(logDEBUG) << "Unexpected SeqNo " << p.seqNo << ", sending ACK";
 		response.ackNo = p.seqNo;
 		sendPacket(response);
 		return false;
@@ -321,14 +396,9 @@ void Client::recvPacket(Packet& p)
 	memcpy(&p, buffer, len);
 }
 
-void Client::log(const char *str)
-{
-	std::cout << str << std::endl << std::flush;
-}
-
 int main()
 {
-	Client c;
+	Client c(false);
 	c.run();
 	return 0;
 }

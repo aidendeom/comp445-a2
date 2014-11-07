@@ -1,6 +1,8 @@
 #include "Server.h"
 
 #include <iostream>
+#include <map>
+#include <functional>
 
 #include "../Router/Router.h"
 #include "../Utils/Utils.h"
@@ -36,7 +38,7 @@ Server::Server()
 		sa_in.sin_addr.s_addr = htonl(INADDR_ANY);
 
 		//Bind the UDP port
-		if (bind(s, (LPSOCKADDR)&sa_in, sizeof(sa_in)) == SOCKET_ERROR)
+		if (::bind(s, (LPSOCKADDR)&sa_in, sizeof(sa_in)) == SOCKET_ERROR)
 			throw "Socket bind failed\n";
 
 		std::cout << "Enter router hostname: " << std::flush;
@@ -70,6 +72,12 @@ Server::~Server()
 
 void Server::run()
 {
+	std::map<char, std::function<void()>> ops =
+	{
+		{ 1, [this]() { sendFile(); } },
+		{ 2, [this]() { recvFile(); } }
+	};
+
 	Packet p;
 
 	try
@@ -89,9 +97,22 @@ void Server::run()
 			}
 		}
 
-		// Connected
-		//recvFile();
-		sendFile();
+		while (connected)
+		{
+			recvPacketWithACK(p);
+			char choice = p.data[0];
+
+			// Execute the choice
+			auto result = ops.find(choice);
+			if (result != ops.end())
+			{
+				result->second();
+			}
+			else
+			{
+				connected = false;
+			}
+		}
 	}
 	catch (const char* str)
 	{

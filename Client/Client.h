@@ -10,7 +10,7 @@
 class Client
 {
 public:
-	Client();
+	Client(bool debug);
 	~Client();
 
 	void run();
@@ -18,13 +18,16 @@ public:
 private:
 	SOCKET s;
 	SOCKADDR_IN sa_out;
+	std::string local_hostname;
 	std::string router_hostname;
 	bool enableLogging;
 	int connectionAck;
 	int currentSeqNo;
 	int expectedSeqNo;
+	int packetCount;
 
 	void threeWayHandshake();
+	char selectOperation();
 	void sendPacket(const Packet& p);
 	void recvPacket(Packet& p);
 	void sendPacketWithACK(const Packet& p);
@@ -33,6 +36,5 @@ private:
 	void sendFile(std::ifstream& file, size_t filesize);
 	std::string selectLocalFile();
 	void recvFile();
-	void log(const char *str);
 };
 
