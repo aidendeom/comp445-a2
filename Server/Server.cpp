@@ -208,7 +208,7 @@ void Server::sendFile()
 
 void Server::sendFile(std::ifstream& file, size_t filesize)
 {
-	size_t numPacketsSent{ 0 };
+	size_t packetCountBefore = packetCount;
 
 	Packet p;
 
@@ -224,14 +224,16 @@ void Server::sendFile(std::ifstream& file, size_t filesize)
 		p.seqNo = currentSeqNo;
 
 		sendPacketWithACK(p);
-		numPacketsSent++;
 	}
+
+	size_t packetCountAfter = packetCount;
+	size_t diff = packetCountAfter - packetCountBefore;
 
 	std::cout << "File transfer complete" << std::endl;
 	FILE_LOG(logDEBUG) << "File transfer complete";
 	FILE_LOG(logDEBUG) << "\t# effective bytes sent: " << filesize;
-	FILE_LOG(logDEBUG) << "\t# packets sent:         " << numPacketsSent;
-	FILE_LOG(logDEBUG) << "\t# bytes sent:           " << numPacketsSent * sizeof(p);
+	FILE_LOG(logDEBUG) << "\t# packets sent:         " << diff;
+	FILE_LOG(logDEBUG) << "\t# bytes sent:           " << diff * sizeof(p);
 }
 
 void Server::recvFile()
@@ -263,9 +265,9 @@ void Server::recvFile()
 
 	std::cout << "File transfer complete" << std::endl;
 	FILE_LOG(logDEBUG) << "File transfer complete";
-	FILE_LOG(logDEBUG) << "\t# effective bytes sent: " << filesize;
-	FILE_LOG(logDEBUG) << "\t# packets sent:         " << numPacketsRecvd;
-	FILE_LOG(logDEBUG) << "\t# bytes sent:           " << numPacketsRecvd * sizeof(p);
+	FILE_LOG(logDEBUG) << "\t# effective bytes received: " << filesize;
+	FILE_LOG(logDEBUG) << "\t# packets received:         " << numPacketsRecvd;
+	FILE_LOG(logDEBUG) << "\t# bytes bytes:              " << numPacketsRecvd * sizeof(p);
 }
 
 void Server::sendPacketWithACK(const Packet& p)

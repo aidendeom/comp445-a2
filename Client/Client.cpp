@@ -231,8 +231,7 @@ void Client::sendFile()
 
 void Client::sendFile(std::ifstream& file, size_t filesize)
 {
-	// Number of packets sent for this transfer, NOT total sent.
-	size_t numPacketsSent{ 0 };
+	size_t packetCountBefore = packetCount;
 	
 	Packet p;
 
@@ -248,14 +247,17 @@ void Client::sendFile(std::ifstream& file, size_t filesize)
 		p.seqNo = currentSeqNo;
 
 		sendPacketWithACK(p);
-		numPacketsSent++;
 	}
 
-	std::cout << "File transfer complete" << std::endl;
+	size_t packetCountAfter = packetCount;
+
+	size_t diff = packetCountAfter - packetCountBefore;
+
+	std::cout << "File transfer complete " << diff << std::endl;
 	FILE_LOG(logDEBUG) << "File transfer complete";
 	FILE_LOG(logDEBUG) << "\t# effective bytes sent: " << filesize;
-	FILE_LOG(logDEBUG) << "\t# packets sent:         " << numPacketsSent;
-	FILE_LOG(logDEBUG) << "\t# bytes sent:           " << numPacketsSent * sizeof(p);
+	FILE_LOG(logDEBUG) << "\t# packets sent:         " << diff;
+	FILE_LOG(logDEBUG) << "\t# bytes sent:           " << diff * sizeof(p);
 }
 
 std::string Client::selectLocalFile()
