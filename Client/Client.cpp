@@ -105,6 +105,7 @@ void Client::run()
 			// Send the choice
 			p.seqNo = currentSeqNo;
 			p.data[0] = choice;
+			p.control = true;
 			sendPacketWithACK(p);
 
 			// Execute the choice

@@ -148,12 +148,15 @@ struct Packet
 	static const size_t DATA_LENGTH{ 1024 };
 
 	bool syn;
+	bool control;
 	int seqNo;
 	int ackNo;
 	size_t length;
 	char data[DATA_LENGTH];
 
 	Packet() :
+		syn{ false },
+		control{ false },
 		seqNo{ 0 },
 		ackNo{ 0 },
 		length{ 0 }

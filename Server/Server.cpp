@@ -113,17 +113,20 @@ void Server::run()
 		while (connected)
 		{
 			recvPacketWithACK(p);
-			char choice = p.data[0];
+			if (p.control)
+			{
+				char choice = p.data[0];
 
-			// Execute the choice
-			auto result = ops.find(choice);
-			if (result != ops.end())
-			{
-				result->second();
-			}
-			else
-			{
-				connected = false;
+				// Execute the choice
+				auto result = ops.find(choice);
+				if (result != ops.end())
+				{
+					result->second();
+				}
+				else
+				{
+					connected = false;
+				}
 			}
 		}
 	}
